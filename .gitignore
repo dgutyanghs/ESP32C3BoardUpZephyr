@@ -1,0 +1,43 @@
+# ==========================================
+# Zephyr Build System Artifacts
+# ==========================================
+build/
+zephyr/.config
+zephyr/.config.old
+zephyr/include/generated/
+
+# ==========================================
+# Python Virtual Environments & Dependencies
+# ==========================================
+.venv/
+venv/
+ENV/
+*.pyc
+__pycache__/
+.pytest_cache/
+
+# ==========================================
+# West Tool Metadata (If initialized at root)
+# ==========================================
+.west/
+modules/
+zephyr/
+
+# ==========================================
+# IDEs and Editors Configurations
+# ==========================================
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store
+
+# ==========================================
+# Compiled Binaries & Formats (Failsafe)
+# ==========================================
+*.elf
+*.bin
+*.hex
+*.map
+*.obj
+*.o
