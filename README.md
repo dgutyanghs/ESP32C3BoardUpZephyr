@@ -2,25 +2,13 @@
 
 A lightweight, optimized, and application-centric template for developing **ESP32-C3** applications using **Zephyr RTOS**. 
 
-By leveraging West's workspace inheritance configuration, this project setup bypasses downloading gigabytes of unneeded vendor HALs (like Nordic, NXP, or STM32), fetching **only** the core Zephyr kernel, Espressif HAL binaries, and the LVGL graphics library.
+By leveraging West's workspace inheritance configuration, this project setup bypasses downloading gigabytes of unneeded vendor HALs (like Nordic, NXP, or STM32), fetching **only** the core Zephyr kernel, Espressif HAL binaries, and the LVGL graphics library directly through the manifest layout.
 
 ---
 
-## 🛠️ Prerequisites & Environment Setup
+## 📦 Workspace Initialization & Environment Setup
 
-Before cloning or working with this repository, ensure your system has the required cross-compilation toolchains.
-
-### 1. Install the Zephyr SDK
-The ESP32-C3 utilizes the RISC-V architecture. Download the Zephyr SDK (v0.16.0 or newer recommended):
-
-1. Download the toolchain package from the [Zephyr SDK GitHub Releases](https://github.com).
-2. Extract the SDK and run the setup script to register the RISC-V platform toolchain:
-   ```bash
-   cd /path/to/zephyr-sdk-<version>
-   ./setup.sh -t riscv64-zephyr-elf -c
-   ```
-
-### 2. Prepare the Python Virtual Environment
+### 1. Prepare the Python Virtual Environment
 Navigate to your desired workspace root location, isolate your environment, and install `west`:
 
 ```bash
@@ -32,31 +20,39 @@ source .venv/bin/activate
 pip install west
 ```
 
----
+### 2. Download and Instantiate the Workspace
 
-## 📦 Workspace Initialization
+You can initialize this project layout using one of two methods depending on whether you are initializing a local directory or pulling it directly from remote production:
 
-Instead of pulling down the entire massive Zephyr upstream ecosystem, initialization is handled via this application-centric folder structure.
+* **Option A: Pulling directly from GitHub (Recommended for Team/Downstream Users)**
+  If you are cloning this repository as a ready-to-use template, point `west init` directly to your remote repository URL using the `-m` flag. This clones the app folder and initializes the manifest registry in a single step:
+  ```bash
+  # Initialize using the remote project template repository
+  west init -m https://github.com/dgutyanghs/ESP32C3BoardUpZephyr . 
 
-### 1. Download Modules via Lean Manifest
-Initialize `west` pointing to this repository's local `west.yml` configuration. The manifest is pre-configured with a custom `name-allowlist` to download only **`hal_espressif`** and **`lvgl`**:
+  # Fetch only the targeted Zephyr core + Espressif HAL + LVGL
+  west update
+  ```
+
+* **Option B: Initializing from a Local Directory (For Local Machine Setup)**
+  If you already have this folder on your machine and want to instantiate the workspace locally around it:
+  ```bash
+  # Initialize the workspace using this folder's manifest configuration
+  west init --local my_esp32_app
+
+  # Fetch only the targeted Zephyr core + Espressif HAL + LVGL
+  west update
+  ```
+
+### 3. Fetch Binary Blobs & Python Requirements
+Complete the initialization sequence to pull Espressif's proprietary binary components (Wi-Fi, Bluetooth, and ROM hooks), install specific script modules, and export CMake paths:
 
 ```bash
-# Initialize the workspace using this folder's manifest
-west init --local my_esp32_app
-
-# Fetch only the targeted Zephyr core + Espressif HAL + LVGL 
-west update
-```
-
-### 2. Fetch Binary Blobs & Python Requirements
-Complete the initialization by pulling Espressif's proprietary binary components (Wi-Fi, Bluetooth, and ROM hooks), installing specific script modules, and exporting CMake paths:
-
-```bash
+# Move to the workspace root directory if not already there
 # Fetch required hardware bootloaders and binary blobs
 west blobs fetch hal_espressif
 
-# Install module-specific Python dependencies (including LVGL dependency scripts)
+# Install module-specific Python dependencies (including requests, jsonschema, and LVGL dependency scripts)
 west packages pip --install
 
 # Register the workspace into the local CMake package registry
@@ -70,7 +66,7 @@ west zephyr-export
 Once initialization is fully generated, your workspace framework maps out like this:
 
 ```text
-esp32c3-zephyr-workspace/
+esp32c3-zephyr-workspace/  # This folder name doesn't matter. 
 ├── .west/             # West meta-tool definitions
 ├── modules/           # Isolated downstream repositories (hal_espressif, lvgl)
 ├── zephyr/            # Core Zephyr RTOS system layer
